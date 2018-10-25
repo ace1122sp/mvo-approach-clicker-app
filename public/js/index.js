@@ -16,7 +16,7 @@
         li.innerHTML = cat[0];
 
         li.addEventListener('click', () => {
-          viewCatArea.render(cat[1]);
+          octopus.chooseCat(cat[1]);
         });
 
         ul.appendChild(li);
@@ -123,6 +123,7 @@
     }, 
     getCatList: () => model.getCatList(),
     getCat: catIndex => model.getCat(parseInt(catIndex)), 
+    chooseCat: catIndex => viewCatArea.render(catIndex),
     clickCat: catIndex => {
       const index = parseInt(catIndex);
       model.clickCat(index);
