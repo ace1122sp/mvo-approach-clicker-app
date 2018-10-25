@@ -31,8 +31,8 @@
       
       // dom elements
       const div = document.getElementById('catSpace');
+      const nameHeading = document.createElement('h2');
       const img = document.createElement('img');
-      const nameLabel = document.createElement('label');
       const label = document.createElement('label');
       const span = document.createElement('span');
 
@@ -40,7 +40,7 @@
       img.src = '';
       img.alt = 'cat image';
       img.name = '';
-      nameLabel.setAttribute('id', 'nameLabel');
+      nameHeading.setAttribute('id', 'nameHeading');
       label.innerHTML = 'click counter:';    
 
       // add event listener
@@ -49,7 +49,7 @@
       });
 
       // update existing dom
-      const domElementsToAdd = [img, nameLabel, label, span];
+      const domElementsToAdd = [nameHeading, img, label, span];
       domElementsToAdd.forEach(elm => {
         div.append(elm);
       }); 
@@ -61,13 +61,13 @@
 
       // get dom
       const img = document.getElementsByTagName('img')[0];
-      const nameLabel = document.getElementById('nameLabel');
+      const nameHeading = document.getElementById('nameHeading');
       const span = document.getElementsByTagName('span')[0];
 
       // update dom elements 
       img.src = cat.url;
       img.setAttribute('name', catIndex);
-      nameLabel.innerHTML = cat.name;
+      nameHeading.innerHTML = cat.name;
       span.innerHTML = cat.clicks;  
     }
   };
