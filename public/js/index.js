@@ -16,7 +16,7 @@
         li.innerHTML = cat[0];
 
         li.addEventListener('click', () => {
-          octopus.chooseCat(cat[1]);
+          octopus.setActiveCat(cat[1]);
         });
 
         ul.appendChild(li);
@@ -24,8 +24,23 @@
 
       // update existing dom
       aside.appendChild(ul);
+    },
+    render: () => {
+
+      // get dom
+      const list = document.getElementsByTagName('li');
+
+      // get data
+      const cats = octopus.getCatList();
+
+      // update dom
+      const length = list.length;
+      for (let i = 0; i < length; i++) {
+        list[i].innerHTML = cats[i][0];
+      }
     }
   };
+  
   let viewCatArea = {
     init: () => {
       
@@ -39,13 +54,12 @@
       // add attributes and common content to html elements 
       img.src = '';
       img.alt = 'cat image';
-      img.name = '';
       nameHeading.setAttribute('id', 'nameHeading');
       label.innerHTML = 'click counter:';    
 
       // add event listener
       img.addEventListener('click', function() {
-        octopus.clickCat(this.name);
+        octopus.clickCat();
       });
 
       // update existing dom
@@ -54,10 +68,10 @@
         div.append(elm);
       }); 
     },
-    render: catIndex => {
+    render: () => {
 
       // get cat
-      const cat = octopus.getCat(catIndex);
+      const cat = octopus.getActiveCat();
 
       // get dom
       const img = document.getElementsByTagName('img')[0];
@@ -66,11 +80,82 @@
 
       // update dom elements 
       img.src = cat.url;
-      img.setAttribute('name', catIndex);
       nameHeading.innerHTML = cat.name;
       span.innerHTML = cat.clicks;  
     }
   };
+
+  let viewAdminArea = {
+    render: () => {
+      
+      // get active cat data
+      let activeCat = octopus.getActiveCat();
+      
+      // get dom
+      const form = document.getElementsByTagName('form')[0];
+      
+      // update input values 
+      form.name.value = activeCat.name;
+      form.url.value = activeCat.url;
+      form.clicks.value = activeCat.clicks;
+    },
+
+    toggleAdmin: visibility => {
+
+      // get dom 
+      const formDiv = document.getElementsByClassName('form-div')[0];
+      const adminButton = document.getElementById('adminButton');
+
+      // update dom 
+      if (visibility) {
+        adminButton.style.display = 'none';
+        formDiv.style.display = 'initial';
+      } else {
+        formDiv.style.display = 'none';
+        adminButton.style.display = 'initial';
+      }
+    }, 
+
+    init: function () {      
+
+      // get dom 
+      const adminButton = document.getElementById('adminButton');
+      const cancelButton = document.getElementById('cancelButton');
+      const saveButton = document.getElementById('saveButton');
+      const formDiv = document.getElementsByClassName('form-div')[0];
+      const form = document.getElementsByTagName('form')[0];
+
+      // add event listeners
+      const buttons = [cancelButton, saveButton];
+      
+      buttons.forEach(button => {
+        button.addEventListener('click', () => {
+          this.toggleAdmin(false);
+        });
+      });
+
+      adminButton.addEventListener('click', () => {
+        this.toggleAdmin(true);
+        this.render();
+      });
+
+      form.addEventListener('submit', e => {
+        e.preventDefault();
+        const updatedCat = {
+          name: e.target.name.value,
+          url: e.target.url.value,
+          clicks: e.target.clicks.value
+        }
+
+        octopus.adminCatUpdate(updatedCat);
+
+      });
+
+      // hide form on start
+      formDiv.style.display = 'none';
+    }
+  }
+
   let model = {
     init: () => {
       if (!localStorage.getItem('cats')) {
@@ -103,6 +188,10 @@
         localStorage.setItem('cats', JSON.stringify(cats));
       }
     },
+    setActiveCat: catIndex => {
+      localStorage.setItem('activeCat', catIndex);
+    },
+    getActiveCat: () => localStorage.getItem('activeCat'),
     getCatList: () => JSON.parse(localStorage.getItem('cats')).map((cat, index) => [cat.name, index]),
     getCat: catIndex => {
       const cats = JSON.parse(localStorage.getItem('cats'));    
@@ -112,22 +201,46 @@
       const cats = JSON.parse(localStorage.getItem('cats'));
       cats[catIndex].clicks = parseInt(cats[catIndex].clicks) + 1;
       localStorage.setItem('cats', JSON.stringify(cats));      
+    },
+    adminCatUpdate: (catIndex, updatedCat) => {
+      const cats = JSON.parse(localStorage.getItem('cats'));
+      
+      cats[catIndex] = { ...updatedCat };
+      localStorage.setItem('cats', JSON.stringify(cats));
     }
   };
+  
   let octopus = {
-    init: () => {
+    init: function () {
       model.init();
       viewCatList.init();
       viewCatArea.init();
-      viewCatArea.render(0);
+      this.setActiveCat(0);
+      viewAdminArea.init();
     }, 
     getCatList: () => model.getCatList(),
-    getCat: catIndex => model.getCat(parseInt(catIndex)), 
-    chooseCat: catIndex => viewCatArea.render(catIndex),
-    clickCat: catIndex => {
-      const index = parseInt(catIndex);
+    getActiveCat: () => {
+      const activeCat = model.getActiveCat();
+      
+      return model.getCat(parseInt(activeCat));
+    },
+    setActiveCat: catIndex => {
+      model.setActiveCat(catIndex);
+      viewCatArea.render();
+      viewAdminArea.render();
+    },
+    clickCat: () => {
+      const index = parseInt(model.getActiveCat());
+
       model.clickCat(index);
-      viewCatArea.render(index);
+      viewCatArea.render();
+    },
+    adminCatUpdate: updatedCat => {
+      const catIndex = parseInt(model.getActiveCat());
+
+      model.adminCatUpdate(catIndex, updatedCat);
+      viewCatList.render();
+      viewCatArea.render();
     }
   };
   
