@@ -39,7 +39,7 @@
       // add attributes and common content to html elements 
       img.src = '';
       img.alt = 'cat image';
-      img.name = '0';
+      img.name = '';
       nameLabel.setAttribute('id', 'nameLabel');
       label.innerHTML = 'click counter:';    
 
@@ -122,10 +122,7 @@
       viewCatArea.render(0);
     }, 
     getCatList: () => model.getCatList(),
-    getCat: catIndex => {
-      const index = parseInt(catIndex);
-      return model.getCat(index);
-    }, 
+    getCat: catIndex => model.getCat(parseInt(catIndex)), 
     clickCat: catIndex => {
       const index = parseInt(catIndex);
       model.clickCat(index);
