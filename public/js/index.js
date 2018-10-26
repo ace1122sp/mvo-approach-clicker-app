@@ -1,13 +1,13 @@
 (() => {
   let viewCatList = {
-    init: () => {
+    init: function () {
 
       // get data
       const cats = octopus.getCatList();
       
       // get dom
-      const aside = document.getElementsByTagName('aside')[0];
-      const ul = document.createElement('ul');
+      this.aside = document.getElementsByTagName('aside')[0];
+      this.ul = document.createElement('ul');
 
       // add cats to ul list
       cats.forEach(cat => {
@@ -19,11 +19,11 @@
           octopus.setActiveCat(cat[1]);
         });
 
-        ul.appendChild(li);
+        this.ul.appendChild(li);
       });
 
       // update existing dom
-      aside.appendChild(ul);
+      this.aside.appendChild(this.ul);
     },
     render: () => {
 
@@ -42,104 +42,69 @@
   };
   
   let viewCatArea = {
-    init: () => {
+    init: function () {
       
       // dom elements
-      const div = document.getElementById('catSpace');
-      const nameHeading = document.createElement('h2');
-      const img = document.createElement('img');
-      const label = document.createElement('label');
-      const span = document.createElement('span');
+      this.div = document.getElementById('catSpace');
+      this.nameHeading = document.createElement('h2');
+      this.img = document.createElement('img');
+      this.label = document.createElement('label');
+      this.span = document.createElement('span');
 
       // add attributes and common content to html elements 
-      img.src = '';
-      img.alt = 'cat image';
-      nameHeading.setAttribute('id', 'nameHeading');
-      label.innerHTML = 'click counter:';    
+      this.img.src = '';
+      this.img.alt = 'cat image';
+      this.nameHeading.setAttribute('id', 'nameHeading');
+      this.label.innerHTML = 'click counter:';    
 
       // add event listener
-      img.addEventListener('click', function() {
+      this.img.addEventListener('click', function() {
         octopus.clickCat();
       });
 
       // update existing dom
-      const domElementsToAdd = [nameHeading, img, label, span];
+      const domElementsToAdd = [this.nameHeading, this.img, this.label, this.span];
       domElementsToAdd.forEach(elm => {
-        div.append(elm);
+        this.div.append(elm);
       }); 
     },
-    render: () => {
+    render: function () {
 
       // get cat
       const cat = octopus.getActiveCat();
 
-      // get dom
-      const img = document.getElementsByTagName('img')[0];
-      const nameHeading = document.getElementById('nameHeading');
-      const span = document.getElementsByTagName('span')[0];
-
       // update dom elements 
-      img.src = cat.url;
-      nameHeading.innerHTML = cat.name;
-      span.innerHTML = cat.clicks;  
+      this.img.src = cat.url;
+      this.nameHeading.innerHTML = cat.name;
+      this.span.innerHTML = cat.clicks;  
     }
   };
 
   let viewAdminArea = {
-    render: () => {
-      
-      // get active cat data
-      let activeCat = octopus.getActiveCat();
-      
-      // get dom
-      const form = document.getElementsByTagName('form')[0];
-      
-      // update input values 
-      form.name.value = activeCat.name;
-      form.url.value = activeCat.url;
-      form.clicks.value = activeCat.clicks;
-    },
-
-    toggleAdmin: visibility => {
+    init: function () {
 
       // get dom 
-      const formDiv = document.getElementsByClassName('form-div')[0];
-      const adminButton = document.getElementById('adminButton');
-
-      // update dom 
-      if (visibility) {
-        adminButton.style.display = 'none';
-        formDiv.style.display = 'initial';
-      } else {
-        formDiv.style.display = 'none';
-        adminButton.style.display = 'initial';
-      }
-    }, 
-
-    init: function () {      
-
-      // get dom 
-      const adminButton = document.getElementById('adminButton');
-      const cancelButton = document.getElementById('cancelButton');
-      const saveButton = document.getElementById('saveButton');
-      const formDiv = document.getElementsByClassName('form-div')[0];
-      const form = document.getElementsByTagName('form')[0];
+      this.adminButton = document.getElementById('adminButton');
+      this.cancelButton = document.getElementById('cancelButton');
+      this.saveButton = document.getElementById('saveButton');
+      this.formDiv = document.getElementsByClassName('form-div')[0];
+      this.form = document.getElementsByTagName('form')[0];
 
       // add event listeners
-      const buttons = [cancelButton, saveButton];
-      
+      const buttons = [this.cancelButton, this.saveButton];
+
       buttons.forEach(button => {
         button.addEventListener('click', () => {
           this.toggleAdmin(false);
         });
       });
 
-      adminButton.addEventListener('click', () => {
+      this.adminButton.addEventListener('click', () => {
         this.toggleAdmin(true);
         this.render();
       });
 
-      form.addEventListener('submit', e => {
+      this.form.addEventListener('submit', e => {
         e.preventDefault();
         const updatedCat = {
           name: e.target.name.value,
@@ -152,7 +117,30 @@
       });
 
       // hide form on start
-      formDiv.style.display = 'none';
+      this.formDiv.style.display = 'none';
+    },
+
+    render: function () {
+      
+      // get active cat data
+      let activeCat = octopus.getActiveCat();
+  
+      // update input values 
+      this.form.name.value = activeCat.name;
+      this.form.url.value = activeCat.url;
+      this.form.clicks.value = activeCat.clicks;
+    },
+
+    toggleAdmin: function (visibility) {
+    
+      // update dom 
+      if (visibility) {
+        this.adminButton.style.display = 'none';
+        this.formDiv.style.display = 'initial';
+      } else {
+        this.formDiv.style.display = 'none';
+        this.adminButton.style.display = 'initial';
+      }
     }
   }
 
@@ -215,8 +203,8 @@
       model.init();
       viewCatList.init();
       viewCatArea.init();
-      this.setActiveCat(0);
       viewAdminArea.init();
+      this.setActiveCat(0);
     }, 
     getCatList: () => model.getCatList(),
     getActiveCat: () => {
